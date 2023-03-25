@@ -4,4 +4,4 @@
 窗口圖
 
 
-[image](https://github.com/edenmw/Keyboard-Display/main/keyboard.png)
+![image](https://github.com/edenmw/Keyboard-Display/main/keyboard.png)

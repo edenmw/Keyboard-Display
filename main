@@ -1,0 +1,265 @@
+#!/usr/bin/env python
+# -*- coding=utf-8 -*-
+
+################################################################################################################################
+## 直播鍵盤按鍵顯示
+#  無框窗口顯示 在直播遊戲中顯示 TAB, Shift, Ctrl, Space, Q, W, E, R, A, S, D, F鍵
+#  關閉程序只需要點擊程序兩次 即可關閉
+#  窗口可直接拖拉
+#
+#
+## 作者: Miles J
+## Time: 2022/04/13
+################################################################################################################################
+
+
+import tkinter as tk
+from PIL import Image, ImageTk
+
+import keyboard
+import threading
+
+
+class _Main:
+    def __init__(self):
+        self.screenX, self.screenY = 0, 0
+        self.winWH = 230, 160
+        self.winSize = str(self.winWH[0]) + 'x' + str(self.winWH[1])
+
+        self.root = tk.Tk()
+        self.root.geometry(self.winSize)
+        self.root.title('LOL Keyboard')
+
+        self.root.attributes('-transparentcolor', '#010101')
+        self.root.overrideredirect(True)
+        self.root.wm_attributes('-topmost', 1)
+
+        self.cv = tk.Canvas(self.root, highlightthickness=0, bg='#010101')
+        self.cv.pack()
+
+        self.imgTab = Image.open('D:/Python/DC_game/im/tab.png').resize((50, 50))
+        self.imgTabTouch = Image.open('D:/Python/DC_game/im/tabt.png').resize((50, 50))
+        self.tabImg = ImageTk.PhotoImage(self.imgTab)
+        self.tabTouchImg = ImageTk.PhotoImage(self.imgTabTouch)
+
+        self.imgQ = Image.open('D:/Python/DC_game/im/q.png').resize((50, 50))
+        self.imgQTouch = Image.open('D:/Python/DC_game/im/qt.png').resize((50, 50))
+        self.qImg = ImageTk.PhotoImage(self.imgQ)
+        self.qTouchImg = ImageTk.PhotoImage(self.imgQTouch)
+
+        self.imgW = Image.open('D:/Python/DC_game/im/w.png').resize((50, 50))
+        self.imgWTouch = Image.open('D:/Python/DC_game/im/wt.png').resize((50, 50))
+        self.wImg = ImageTk.PhotoImage(self.imgW)
+        self.wTouchImg = ImageTk.PhotoImage(self.imgWTouch)
+
+        self.imgE = Image.open('D:/Python/DC_game/im/e.png').resize((50, 50))
+        self.imgETouch = Image.open('D:/Python/DC_game/im/et.png').resize((50, 50))
+        self.eImg = ImageTk.PhotoImage(self.imgE)
+        self.eTouchImg = ImageTk.PhotoImage(self.imgETouch)
+
+        self.imgR = Image.open('D:/Python/DC_game/im/r.png').resize((50, 50))
+        self.imgRTouch = Image.open('D:/Python/DC_game/im/rt.png').resize((50, 50))
+        self.rImg = ImageTk.PhotoImage(self.imgR)
+        self.rTouchImg = ImageTk.PhotoImage(self.imgRTouch)
+
+        self.imgShift = Image.open('D:/Python/DC_game/im/shift.png').resize((50, 50))
+        self.imgShiftTouch = Image.open('D:/Python/DC_game/im/shiftt.png').resize((50, 50))
+        self.shiftImg = ImageTk.PhotoImage(self.imgShift)
+        self.shiftTouchImg = ImageTk.PhotoImage(self.imgShiftTouch)
+
+        self.imgA = Image.open('D:/Python/DC_game/im/a.png').resize((50, 50))
+        self.imgATouch = Image.open('D:/Python/DC_game/im/at.png').resize((50, 50))
+        self.aImg = ImageTk.PhotoImage(self.imgA)
+        self.aTouchImg = ImageTk.PhotoImage(self.imgATouch)
+
+        self.imgS = Image.open('D:/Python/DC_game/im/s.png').resize((50, 50))
+        self.imgSTouch = Image.open('D:/Python/DC_game/im/st.png').resize((50, 50))
+        self.sImg = ImageTk.PhotoImage(self.imgS)
+        self.sTouchImg = ImageTk.PhotoImage(self.imgSTouch)
+
+        self.imgD = Image.open('D:/Python/DC_game/im/d.png').resize((50, 50))
+        self.imgDTouch = Image.open('D:/Python/DC_game/im/dt.png').resize((50, 50))
+        self.dImg = ImageTk.PhotoImage(self.imgD)
+        self.dTouchImg = ImageTk.PhotoImage(self.imgDTouch)
+
+        self.imgF = Image.open('D:/Python/DC_game/im/f.png').resize((50, 50))
+        self.imgFTouch = Image.open('D:/Python/DC_game/im/ft.png').resize((50, 50))
+        self.fImg = ImageTk.PhotoImage(self.imgF)
+        self.fTouchImg = ImageTk.PhotoImage(self.imgFTouch)
+
+        self.imgCtrl = Image.open('D:/Python/DC_game/im/ctrl.png').resize((50, 50))
+        self.imgCtrlTouch = Image.open('D:/Python/DC_game/im/ctrlt.png').resize((50, 50))
+        self.ctrlImg = ImageTk.PhotoImage(self.imgCtrl)
+        self.ctrlTouchImg = ImageTk.PhotoImage(self.imgCtrlTouch)
+
+        self.imgSpace = Image.open('D:/Python/DC_game/im/space.png').resize((180, 49))
+        self.imgSpaceTouch = Image.open('D:/Python/DC_game/im/spacet.png').resize((180, 49))
+        self.spaceImg = ImageTk.PhotoImage(self.imgSpace)
+        self.spaceTouchImg = ImageTk.PhotoImage(self.imgSpaceTouch)
+
+        self.cv.create_image(30, 30, image=self.tabImg)
+        self.cv.create_image(72, 30, image=self.qImg)
+        self.cv.create_image(114, 30, image=self.wImg)
+        self.cv.create_image(156, 30, image=self.eImg)
+        self.cv.create_image(198, 30, image=self.rImg)
+        self.cv.create_image(30, 79, image=self.shiftImg)
+        self.cv.create_image(72, 79, image=self.aImg)
+        self.cv.create_image(114, 79, image=self.sImg)
+        self.cv.create_image(156, 79, image=self.dImg)
+        self.cv.create_image(198, 79, image=self.fImg)
+        self.cv.create_image(30, 128, image=self.ctrlImg)
+        self.cv.create_image(137, 128, image=self.spaceImg)
+
+        self.tabIO = None
+        self.qIO = None
+        self.wIO = None
+        self.eIO = None
+        self.rIO = None
+        self.shiftIO = None
+        self.aIO = None
+        self.sIO = None
+        self.dIO = None
+        self.fIO = None
+        self.ctrlIO = None
+        self.spaceIO = None
+
+    def main(self):
+        # self.root.bind("<KeyPress>", self.down_repeat)
+        # self.root.bind("<KeyRelease>", self.up_repeat)
+
+        self.root.bind("<B1-Motion>", self.move)
+        self.root.bind("<Double-Button-1>", self.close)
+
+        t = threading.Thread(target=self.monitor)
+        t.start()
+
+        # with keyboard.Listener(on_press=self.down_repeat, on_release=self.up_repeat) as listener:
+        #     listener.join()
+
+        self.root.mainloop()
+
+    def monitor(self):
+        keyboard.hook(self.key_decide)
+        keyboard.wait()
+
+    def key_decide(self, event):
+        if event.event_type == 'down' and event.name == 'tab':
+            self.tabIO = self.cv.create_image(30, 30, image=self.tabTouchImg, tag='tabCover')
+        elif event.event_type == 'up' and event.name == 'tab':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'q':
+            self.qIO = self.cv.create_image(72, 30, image=self.qTouchImg, tag='qCover')
+        elif event.event_type == 'up' and event.name == 'q':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'w':
+            self.tabIO = self.cv.create_image(114, 30, image=self.wTouchImg, tag='wCover')
+        elif event.event_type == 'up' and event.name == 'w':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'e':
+            self.qIO = self.cv.create_image(156, 30, image=self.eTouchImg, tag='eCover')
+        elif event.event_type == 'up' and event.name == 'e':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'r':
+            self.tabIO = self.cv.create_image(198, 30, image=self.rTouchImg, tag='rCover')
+        elif event.event_type == 'up' and event.name == 'r':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'shift':
+            self.qIO = self.cv.create_image(30, 79, image=self.shiftTouchImg, tag='shiftCover')
+        elif event.event_type == 'up' and event.name == 'shift':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'a':
+            self.tabIO = self.cv.create_image(72, 79, image=self.aTouchImg, tag='aCover')
+        elif event.event_type == 'up' and event.name == 'a':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 's':
+            self.qIO = self.cv.create_image(114, 79, image=self.sTouchImg, tag='sCover')
+        elif event.event_type == 'up' and event.name == 's':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'd':
+            self.tabIO = self.cv.create_image(156, 79, image=self.dTouchImg, tag='dCover')
+        elif event.event_type == 'up' and event.name == 'd':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'f':
+            self.qIO = self.cv.create_image(198, 79, image=self.fTouchImg, tag='fCover')
+        elif event.event_type == 'up' and event.name == 'f':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'ctrl':
+            self.tabIO = self.cv.create_image(30, 128, image=self.ctrlTouchImg, tag='ctrlCover')
+        elif event.event_type == 'up' and event.name == 'ctrl':
+            self.up_repeat(event)
+        elif event.event_type == 'down' and event.name == 'space':
+            self.qIO = self.cv.create_image(137, 128, image=self.spaceTouchImg, tag='spaceCover')
+        elif event.event_type == 'up' and event.name == 'space':
+            self.up_repeat(event)
+
+    def down(self, event):
+        if event == 'tab':
+            self.tabIO = self.cv.create_image(30, 30, image=self.tabTouchImg, tag='cover')
+        # elif event.char == 'q':
+        #     self.qIO = self.cv.create_image(72, 30, image=self.qTouchImg, tag='cover')
+        # elif event.char == 'w':
+        #     self.wIO = self.cv.create_image(114, 30, image=self.wTouchImg, tag='cover')
+        # elif event.char == 'e':
+        #     self.eIO = self.cv.create_image(156, 30, image=self.eTouchImg, tag='cover')
+        # elif event.char == 'r':
+        #     self.rIO = self.cv.create_image(198, 30, image=self.rTouchImg, tag='cover')
+        # elif event == keyboard.Key.shift:
+        #     self.shiftIO = self.cv.create_image(30, 79, image=self.shiftTouchImg, tag='cover')
+        # elif event.char == 'a':
+        #     self.aIO = self.cv.create_image(72, 79, image=self.aTouchImg, tag='cover')
+        # elif event.char == 's':
+        #     self.sIO = self.cv.create_image(114, 79, image=self.sTouchImg, tag='cover')
+        # elif event.char == 'd':
+        #     self.dIO = self.cv.create_image(156, 79, image=self.dTouchImg, tag='cover')
+        # elif event.char == 'f':
+        #     self.fIO = self.cv.create_image(198, 79, image=self.fTouchImg, tag='cover')
+        # elif event == keyboard.Key.ctrl_l:
+        #     self.ctrlIO = self.cv.create_image(30, 128, image=self.ctrlTouchImg, tag='cover')
+        # elif event == keyboard.Key.space:
+        #     self.spaceIO = self.cv.create_image(137, 128, image=self.spaceTouchImg, tag='cover')
+
+    def down_repeat(self, event):
+        self.down(event)
+
+    def up_repeat(self, event):
+        if event.name == 'tab':
+            self.cv.delete('tabCover')
+        elif event.name == 'q':
+            self.cv.delete('qCover')
+        elif event.name == 'w':
+            self.cv.delete('wCover')
+        elif event.name == 'e':
+            self.cv.delete('eCover')
+        elif event.name == 'r':
+            self.cv.delete('rCover')
+        elif event.name == 'shift':
+            self.cv.delete('shiftCover')
+        elif event.name == 'a':
+            self.cv.delete('aCover')
+        elif event.name == 's':
+            self.cv.delete('sCover')
+        elif event.name == 'd':
+            self.cv.delete('dCover')
+        elif event.name == 'f':
+            self.cv.delete('fCover')
+        elif event.name == 'ctrl':
+            self.cv.delete('ctrlCover')
+        elif event.name == 'space':
+            self.cv.delete('spaceCover')
+
+        # self.cv.delete('cover')
+
+    def move(self, event):
+        # 窗口移動事件
+        new_x = (event.x - self.screenX) + self.root.winfo_x()
+        new_y = (event.y - self.screenY) + self.root.winfo_y()
+        s = f"{self.winSize}+{new_x}+{new_y}"
+        self.root.geometry(s)
+
+    def close(self, event):
+        self.root.destroy()
+
+
+if __name__ == '__main__':
+    Main = _Main()
+    Main.main()
